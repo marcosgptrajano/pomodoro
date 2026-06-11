@@ -14,7 +14,7 @@ unsigned long currentMillis = 0;
 int currentRep = 0;
 unsigned long myTime;
 
-
+#define buzzer 6
 
 void setup() {
   // put your setup code here, to run once:
@@ -27,6 +27,7 @@ void setup() {
 void loop() {
 
   pomodoro();
+
 
 }
 
@@ -146,6 +147,7 @@ void confirmConfig(){
 }
 
 void Config(){
+  pinMode(6, OUTPUT);
   studyConfig();
   breackConfig();
   cicleConfig();
@@ -204,12 +206,38 @@ void breackTimer(){
 void pomodoro(){
   Serial.println("-------------------------------");
   Serial.println("Iniciando o timer....");
+  playAlarm();
   for(currentRep = 1 ; currentRep <= cycles ; currentRep++){
     studyTimer();
+    playAlarm();
     if(currentRep < cycles){
       breackTimer();
+      playAlarm();
     }
   }
   Serial.println("------ YOU FINISH -------");
   while(true);
+}
+
+void playAlarm(){
+
+  for(int c = 0; c <= 3; c++){
+    tone(6, 200);
+    delay(100); // Wait for 1000 millisecond(s)
+    
+    tone(6, 400);
+    delay(100); // Wait for 1000 millisecond(s)
+    
+    tone(6, 600);
+    delay(100); // Wait for 1000 millisecond(s)
+    
+    tone(3, 800);
+    delay(100); // Wait for 1000 millisecond(s)
+    
+    tone(6, 1000);
+    delay(100); // Wait for 1000 millisecond(s)
+    
+    noTone(6);
+    delay(1000);
+  }
 }
