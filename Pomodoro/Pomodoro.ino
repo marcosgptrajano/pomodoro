@@ -14,7 +14,7 @@ unsigned long currentMillis = 0;
 int currentRep = 0;
 unsigned long myTime;
 
-#define buzzer 6
+const int buzzer = 4;
 
 void setup() {
   // put your setup code here, to run once:
@@ -32,12 +32,20 @@ void loop() {
 }
 
 void config(){
+  while (!Serial) {
+    delay(10); 
+  }
   Serial.println(R"rawliteral(
 
-    ,------.                            ,--.                          
-    |  .--. ' ,---. ,--,--,--. ,---.  ,-|  | ,---. ,--.--. ,---.      
-    |  '--' || .-. ||        || .-. |' .-. || .-. ||  .--'| .-. |     
-    |  | --' ' '-' '|  |  |  |' '-' '\ `-' |' '-' '|  |   ' '-' '     
+                                                                      
+       ▒                                                          
+  ▒▒   ▒    ▒                                                     
+   ▒▒▓▓▒▓▓▒▒     ____                           _                 
+ ▓▓▓ ▒▒▒▒▒ ▓▓▓   | _ \ ___  _ __ ___   ___   __| | ___  _ __ ___  
+▓             ▓  ||_) / _ \| '_ ` _ \ / _ \ / _` |/ _ \| '__/ _ \ 
+▓             ▓  | __/ (_) | | | | | | (_) | (_| | (_) | | | (_) |
+▓▓▓▓       ▓▓▓▓  ||   \___/|_| |_| |_|\___/ \__,_|\___/|_|  \___/ 
+    ▓▓▓▓▓▓▓               
 
     Desenvolvido por :Marcos Trajano
                                                                                 
@@ -99,7 +107,7 @@ void cicleConfig(){
   while(true){
   Serial.println("Quantos repetições quer fazer?");
 
-  while(Serial.available() ==0){}
+  while(Serial.available() ==0){}A
   cyclesS = Serial.readString();
 
   cyclesS.trim();
@@ -147,7 +155,7 @@ void confirmConfig(){
 }
 
 void Config(){
-  pinMode(6, OUTPUT);
+  pinMode(buzzer, OUTPUT);
   studyConfig();
   breackConfig();
   cicleConfig();
@@ -222,22 +230,22 @@ void pomodoro(){
 void playAlarm(){
 
   for(int c = 0; c <= 3; c++){
-    tone(6, 200);
+    tone(buzzer, 200);
     delay(100); // Wait for 1000 millisecond(s)
     
-    tone(6, 400);
+    tone(buzzer, 400);
     delay(100); // Wait for 1000 millisecond(s)
     
-    tone(6, 600);
+    tone(buzzer, 600);
     delay(100); // Wait for 1000 millisecond(s)
     
-    tone(3, 800);
+    tone(buzzer, 800);
     delay(100); // Wait for 1000 millisecond(s)
     
-    tone(6, 1000);
+    tone(buzzer, 1000);
     delay(100); // Wait for 1000 millisecond(s)
     
-    noTone(6);
+    noTone(buzzer);
     delay(1000);
   }
 }
