@@ -11,6 +11,8 @@ bool j_bt = false;
 int timer = 0;
 int last_timer = 0;
 
+int interface = 1;
+
 void setup() {
   pinMode(20, INPUT_PULLUP);
   Serial.begin(9600);
@@ -24,17 +26,14 @@ void setup() {
   tft.setCursor(40, 100);
   tft.print("Pomodoro");
   delay(1000);
-  start();
 }
 
 void loop() {
-
-  joystick();
-  select(item_selected);
+  UIControl(configStudy());
 
 }
 
-void start(){
+void configStudyUI(){
   tft.fillRect(0, 0 , 320 , 240 , TFT_RED);
   delay(1000);
   tft.drawRect(5, 12, 310, 216, TFT_BLACK);
@@ -76,23 +75,49 @@ void start(){
   tft.print("00:00");
 }
 
-void joystick(){
+void configBreackUI(){
+  tft.fillRect(0, 0 , 320 , 240 , TFT_RED);
+}
+
+int selection(int c){
   j_x = analogRead(27);
   j_bt = digitalRead(20)==0?true:false;
   
   //Serial.println("x: " + String(j_x)+ "y: " + String(j_y) + "bt: " + String(j_bt));
   
-
-  if(j_x > 600){
+  if(c == 3){
+    if(j_x > 600){
     if(item_selected < 3) {
       item_selected++;
     } 
-  } else if(j_x < 400) {
+    } else if(j_x < 400) {
     if(item_selected > 1){
       item_selected--;
     } 
   }
+  } else if(c == 2){
+    if(j_x > 600){
+      if(item_selected < 2) {
+       item_selected++;
+      } 
+    } else if(j_x < 400) {
+      if(item_selected > 1){
+        item_selected--;
+      } 
+    }
+  }
+  Serial.println("item_selected: " + String(item_selected) + " button state: " + String(j_bt) +" Timer: " + String(timer));
+  delay(200);
+  return(item_selected);
+  
 
+  
+
+  
+}
+
+void interact(){
+   j_bt = digitalRead(20)==0?true:false;
   if(item_selected == 2 && j_bt){
     while(j_bt){j_bt = digitalRead(20)==0?true:false;}
      tft.setTextSize(15);
@@ -121,9 +146,13 @@ void joystick(){
     }
   }
 
-  Serial.println("item_selected: " + String(item_selected) + " button state: " + String(j_bt) +" Timer: " + String(timer));
-  delay(200);
+  if(item_selected == 3 && j_bt){
+    Serial.print("Next");
+    item_selected = 2;
+    confirmUI(selection(2), interface);
+  }
 }
+
 
 void displayConfigTime(int t){
 
@@ -139,7 +168,7 @@ void displayConfigTime(int t){
 
 }
 
-void select(int i){
+void selectAnimation(int i){
   if(i == 2){
     if(item_selected != last_item_selected){
       tft.setTextSize(1.9);
@@ -238,5 +267,138 @@ void select(int i){
   }
 
 }
+
+
+int configStudy(){
+  return 1;
+}
+int configBreack(){
+  return 2;
+}
+int configCicles(){
+  return 3;
+}
+
+void UIControl(int id){
+  switch(id){
+    case 1:
+      configStudyUI();
+      while(!confirm()){
+        selection(3);
+        interact();
+        selectAnimation(item_selected);
+      }
+      break;
+    case 2:
+      configBreackUI();
+      while(true){
+        
+      }
+      break;
+    case 3:
+      break;
+  }
+
+}
+
+bool confirm(){
+  return false;
+}
+
+void confirmUI(int item, int ui){
+
+  int button_selected = 2;
+  int last_button_selected = 2;
+  bool click = false;
+
+  tft.setTextSize(1.9);
+  tft.setTextColor(TFT_BLACK, TFT_WHITE);
+
+  tft.fillRect(0, 0 , 320 , 240 , TFT_RED);
+  tft.drawRect(5, 12, 310, 216, TFT_BLACK);
+  tft.fillRoundRect(54, 45 , 214 , 150.5 , 5, TFT_DARKCYAN);
+
+  tft.fillRoundRect(64.5, 138, 88, 29,5, TFT_WHITE);
+  tft.setCursor(100, 149);
+  tft.print("No");
+
+  tft.fillRoundRect(167,138, 88, 29,5, TFT_WHITE);
+  tft.setCursor(202, 149);
+  tft.print("Yes");
+
+  tft.setTextColor(TFT_BLACK, TFT_DARKCYAN);
+  tft.setCursor(129, 70);
+  tft.print("CONFIRM?");
+
+
+  tft.setTextColor(TFT_WHITE, TFT_DARKCYAN);
+  tft.setCursor(64.5, 94);
+  tft.print("Do you want to set the study ");
+  tft.setCursor(64.5, 102);
+  tft.println("session duration to x minutes?");
+
+  while(!click){
+    
+    button_selected = selection(item); 
+    Serial.println(button_selected);
+
+    
+    if(button_selected == 2){
+      if(last_button_selected != button_selected){
+        tft.fillRoundRect(64.5, 138, 88, 29,5, TFT_WHITE);
+        tft.setCursor(100, 149);
+        tft.print("No");
+        last_button_selected = button_selected;
+      }
+      tft.setTextColor(TFT_BLACK, TFT_WHITE);
+      tft.fillRoundRect(167,138, 88, 29,5, TFT_WHITE);
+      tft.setCursor(202, 149);
+      tft.print("Yes");
+
+      delay(200); 
+
+      tft.fillRoundRect(167,138, 88, 29,5, TFT_ORANGE);
+      tft.setTextColor(TFT_BLACK, TFT_ORANGE);
+      tft.setCursor(202, 149);
+      tft.print("Yes");
+    } else if(button_selected == 1){
+      if(last_button_selected != button_selected){
+        tft.setTextColor(TFT_BLACK, TFT_WHITE);
+        tft.fillRoundRect(167,138, 88, 29,5, TFT_WHITE);
+        tft.setCursor(202, 149);
+        tft.print("Yes");
+
+        last_button_selected = button_selected;
+      }
+      tft.fillRoundRect(64.5, 138, 88, 29,5, TFT_WHITE);
+      tft.setTextColor(TFT_BLACK, TFT_WHITE);
+      tft.setCursor(100, 149);
+      tft.print("No");
+
+      delay(200);
+
+      tft.fillRoundRect(64.5, 138, 88, 29,5, TFT_ORANGE);
+      tft.setTextColor(TFT_BLACK, TFT_ORANGE);
+      tft.setCursor(100, 149);
+      tft.print("No");
+    }
+
+    click = digitalRead(20)==0?true:false;
+  }
+
+  click = 0;
+
+  if(button_selected == 2){
+    switch (ui){
+      case 1: 
+        interface = 2;
+        UIControl(configBreack());
+        break;
+    }
+  } else if(button_selected == 1){
+    interface = interface;
+    UIControl(ui);
+  }
+} 
 
 
