@@ -33,7 +33,7 @@ class Pomodoro{
     String time;
     unsigned long timePassed;
     float cc;
-    std::vector<int> timeConfig;
+    std::vector<float> timeConfig;
     String state;
 
     void setState(int b);

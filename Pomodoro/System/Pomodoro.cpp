@@ -15,17 +15,26 @@ Pomodoro::Pomodoro(int study, int breack, int cicles, int BUZZER_PIN){
   time = "";
   timePassed = 0;
   cc = 0;
-  state = "Study Time";
+  state = "Trasition";
 
-  timeConfig.resize(cicles + (cicles -1));
-  
-
-  for(int cc = 0; cc <= cicles+1; cc+=2){
+  if(cicles > 1 ){
+    timeConfig.resize(cicles + (cicles -1) + (cicles+1));
+    timeConfig[0] = 0.11;
+    for( int cc = 2; cc<=(cicles*2)+1; cc+=2){
+    timeConfig[cc] = 0.11;
+    }
+    for(int cc = 1; cc <= (cicles*2)+1 ; cc+=4){
     timeConfig[cc] = studyTime;
-  }
-  for(int cc = 1; cc <= cicles  ; cc+=2){
+    }
+    for(int cc = 3; cc <= (cicles*2)+1  ; cc+=4){
     timeConfig[cc] = breackTime;
+    }
+  }else{
+    timeConfig.resize(cicles + 1);
+    timeConfig[0] = 0.11;
+    timeConfig[1] = studyTime;
   }
+
 
 }
 
@@ -136,11 +145,7 @@ String Pomodoro::getTimer(float tt){
 
     setState(blocoAtual);
     
-    return String(minutos) + ":" + secStr;
-
-
-
-  
+    return minutos>=10?String(minutos):"0"+String(minutos) + ":" + secStr; 
   // cc = float(tt);
   // totalTime = (studyTime * cycles) + (breackTime * (cycles - 1));
   // int neededTime = totalTime - timePassed;
@@ -165,15 +170,20 @@ String Pomodoro::getTimer(float tt){
 }
 
 int Pomodoro::getTotalTime(){
-  int out = (cycles * studyTime) + ((cycles -1) * breackTime);
-  return out;
+  float total = 0;
+  for(float t : timeConfig){
+    total += t;
+  }
+  return total;
 }
 
 void Pomodoro::setState(int b){
   if(b%2 == 0){
+    state = "Trasition";
+  } else if(b%4 == 1){
     state = "Study Time";
-  } else{
-    state = "Breack Time";
+  } else if(b%4 == 3){
+    state = "Break Time";
   }
   
 }
@@ -181,3 +191,4 @@ void Pomodoro::setState(int b){
 String Pomodoro::getState(){
   return state;
 }
+

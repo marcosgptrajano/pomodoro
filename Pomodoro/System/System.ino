@@ -12,14 +12,14 @@ bool j_bt = false;
 
 int timer = 0;
 int last_timer = 0;
-int cicles_choose = 0;
-int last_cicles = 0;
+int cycles_choose = 0;
+int last_cycles = 0;
 
 int interface = 1;
 
 int study_time = 0;
-int breack_time = 0;
-int cicles = 0;
+int break_time = 0;
+int cycles = 0;
 
 double myTime;
 double currentMillis;
@@ -63,13 +63,13 @@ void configStudyUI(){
   tft.setTextColor(TFT_BLACK, TFT_WHITE);
   tft.fillRoundRect(110, 19, 99, 29, 5.5, TFT_WHITE);
   tft.setCursor(127, 30);
-  tft.print("Breack time");
+  tft.print("Break time");
 
 
   //Item03
   tft.fillRoundRect(214, 19, 99, 29, 5.5, TFT_WHITE);
   tft.setCursor(243, 30);
-  tft.print("Cicles");
+  tft.print("Cycles");
 
   // Menu inferior
   tft.fillRoundRect(11, 193, 99, 29, 5.5,  TFT_WHITE);
@@ -87,7 +87,7 @@ void configStudyUI(){
   tft.print("00:00");
 }
 
-void configBreackUI(){
+void configBreakUI(){
   configStudyUI();
 
   tft.fillRoundRect(7, 19, 99, 29, 5.5, TFT_WHITE);
@@ -99,23 +99,23 @@ void configBreackUI(){
   tft.setTextColor(TFT_BLACK, TFT_DARKCYAN);
   tft.fillRoundRect(110, 19, 99, 29, 5.5, TFT_DARKCYAN);
   tft.setCursor(127, 30);
-  tft.print("Breack time");
+  tft.print("Break time");
 
 
 }
 
-void configCiclesUI(){
-  configBreackUI();
+void configCyclesUI(){
+  configBreakUI();
 
   tft.setTextColor(TFT_BLACK, TFT_WHITE);
   tft.fillRoundRect(110, 19, 99, 29, 5.5, TFT_WHITE);
   tft.setCursor(127, 30);
-  tft.print("Breack time");
+  tft.print("Break time");
 
   tft.setTextColor(TFT_BLACK, TFT_DARKCYAN);
   tft.fillRoundRect(214, 19, 99, 29, 5.5, TFT_DARKCYAN);
   tft.setCursor(243, 30);
-  tft.print("Cicles");
+  tft.print("Cycles");
 
 }
 
@@ -194,24 +194,24 @@ void interact(){
         tft.setTextColor(TFT_ORANGE, TFT_RED);
         tft.setTextSize(15);
         tft.setCursor(114, 98);
-        tft.print(  timer<10?"0" + String(cicles_choose):String(timer));
-        last_cicles = cicles_choose;
+        tft.print(  timer<10?"0" + String(cycles_choose):String(timer));
+        last_cycles = cycles_choose;
         while(!j_bt){
         j_bt = digitalRead(20)==0?true:false;
         j_y = analogRead(26);
         if(j_y >600){
-        if(cicles_choose < 60){
-          cicles_choose++;
+        if(cycles_choose < 60){
+          cycles_choose++;
           delay(100);
         }
         
         } else if( j_y < 400){
-          if(cicles_choose > 1){
-            cicles_choose--;
+          if(cycles_choose > 1){
+            cycles_choose--;
             delay(100);
           }
         }
-        displayConfigCicle(cicles_choose);
+        displayConfigCicle(cycles_choose);
         }
     }
 }
@@ -227,7 +227,7 @@ void interact(){
       if(item_selected == 1 && j_bt){
       item_selected = 2;
       interface--;
-      timer = breack_time;
+      timer = break_time;
       UIControl(interface);
      }
     } else{
@@ -259,14 +259,14 @@ void displayConfigTime(int t){
 
 void displayConfigCicle(int t){
 
-  if(t != last_cicles){
+  if(t != last_cycles){
     tft.fillRect(47.6, 64.5, 225, 105, TFT_RED);
     tft.setTextSize(15);
     tft.setTextColor(TFT_ORANGE, TFT_RED);
     tft.setTextSize(15);
     tft.setCursor(114, 98);
-    tft.print( cicles_choose<10? "0" + String(cicles_choose): ""+ String(cicles_choose));
-    last_cicles = t;
+    tft.print( cycles_choose<10? "0" + String(cycles_choose): ""+ String(cycles_choose));
+    last_cycles = t;
   }
   
 
@@ -298,7 +298,7 @@ void selectAnimation(int i){
     if(interface == 3){
       tft.fillRect(47.6, 64.5, 225, 105, TFT_RED);
        tft.setCursor(110, 98);
-      tft.print( cicles_choose<10? "0" + String(cicles_choose): ""+ String(cicles_choose));
+      tft.print( cycles_choose<10? "0" + String(cycles_choose): ""+ String(cycles_choose));
     } else{
       tft.print( timer<10?"0" + String(timer)+ ":00":String(timer)  + ":00");
     }
@@ -312,7 +312,7 @@ void selectAnimation(int i){
     if(interface == 3){
       tft.fillRect(47.6, 64.5, 225, 105, TFT_RED);
       tft.setCursor(110, 98);
-      tft.print( cicles_choose<10? "0" + String(cicles_choose): ""+ String(cicles_choose));
+      tft.print( cycles_choose<10? "0" + String(cycles_choose): ""+ String(cycles_choose));
     } else{
       tft.setCursor(55, 98);
       tft.print( timer<10?"0" + String(timer)+ ":00":String(timer)  + ":00");
@@ -342,7 +342,7 @@ void selectAnimation(int i){
         if(interface == 3){
           tft.fillRect(47.6, 64.5, 225, 105, TFT_RED);
           tft.setCursor(110, 98);
-        tft.print( cicles_choose<10? "0" + String(cicles_choose): ""+ String(cicles_choose));
+        tft.print( cycles_choose<10? "0" + String(cycles_choose): ""+ String(cycles_choose));
         } else{
           tft.setCursor(55, 98);
           tft.print( timer<10?"0" + String(timer)+ ":00":String(timer)  + ":00");
@@ -366,7 +366,7 @@ void selectAnimation(int i){
         if(interface == 3){
           tft.fillRect(47.6, 64.5, 225, 105, TFT_RED);
           tft.setCursor(110, 98);
-          tft.print( cicles_choose<10? "0" + String(cicles_choose): ""+ String(cicles_choose));
+          tft.print( cycles_choose<10? "0" + String(cycles_choose): "" + String(cycles_choose));
         } else{
           tft.setCursor(55, 98);
           tft.print(timer<10?"0" + String(timer)+ ":00":String(timer)  + ":00");
@@ -402,20 +402,77 @@ void selectAnimation(int i){
 }
 
 void pomodoroUI(){
-  tft.fillScreen(TFT_WHITE);
+  tft.fillScreen(TFT_RED);
+  tft.drawRect(5, 12, 310, 216, TFT_BLACK);
+  tft.setTextColor(TFT_ORANGE, TFT_RED);
+  tft.setTextSize(3);
+  tft.setCursor(72.3, 45);
+  tft.print("Study Time");
+
+  tft.setTextColor(TFT_WHITE, TFT_RED);
+  tft.setCursor(55, 90);
+  tft.setTextSize(8);
+  tft.print(study_time>=10?String(study_time) + ":00":"0"+ String(study_time) + ":00");
+
+  tft.setTextSize(2);
+  tft.fillRoundRect(24, 172.2, 99.4, 28.9, 5.5, TFT_WHITE);
+  tft.setCursor(43, 180.6);
   tft.setTextColor(TFT_BLACK, TFT_WHITE);
-  tft.setTextSize(5);
-  tft.setCursor(40, 100);
-  tft.print("Pomodoro");
+  tft.print("Pause");
+
+  tft.fillRoundRect(191.8, 172.2, 99.4, 28.9, 5.5, TFT_WHITE);
+  tft.setCursor(218, 180.6);
+  tft.print("Skip");
+
+}
+
+void breakUI(){
+  tft.fillScreen(TFT_DARKCYAN);
+  tft.drawRect(5, 12, 310, 216, TFT_BLACK);
+  tft.setTextColor(TFT_ORANGE, TFT_DARKCYAN);
+  tft.setTextSize(3);
+  tft.setCursor(72.3, 45);
+  tft.print("Break Time");
+
+  tft.setTextColor(TFT_WHITE, TFT_DARKCYAN);
+  tft.setCursor(55, 90);
+  tft.setTextSize(8);
+  tft.print(break_time>=10?String(break_time) + ":00":"0"+ String(break_time) + ":00");
+
+  tft.setTextSize(2);
+  tft.fillRoundRect(24, 172.2, 99.4, 28.9, 5.5, TFT_WHITE);
+  tft.setCursor(43, 180.6);
+  tft.setTextColor(TFT_BLACK, TFT_WHITE);
+  tft.print("Pause");
+
+  tft.fillRoundRect(191.8, 172.2, 99.4, 28.9, 5.5, TFT_WHITE);
+  tft.setCursor(218, 180.6);
+  tft.print("Skip");
+
+}
+
+void transitionUI(){
+  tft.fillScreen(TFT_ORANGE);
+  tft.drawRect(5, 12, 310, 216, TFT_BLACK);
+  tft.setTextColor(TFT_WHITE, TFT_ORANGE);
+  tft.setTextSize(3);
+  tft.setCursor(72.3, 45);
+  tft.print("Start in...");
+
+  tft.setTextColor(TFT_WHITE, TFT_ORANGE);
+  tft.setCursor(55, 100);
+  tft.setTextSize(8);
+  tft.print("00:05");
+
 }
 
 int configStudy(){
   return 1;
 }
-int configBreack(){
+int configBreak(){
   return 2;
 }
-int configCicles(){
+int configCycles(){
   return 3;
 }
 
@@ -434,7 +491,7 @@ void UIControl(int id){
       }
       break;
     case 2:
-      configBreackUI();
+      configBreakUI();
       while(true){
         selection(3);
         interact();
@@ -442,7 +499,7 @@ void UIControl(int id){
       }
       break;
     case 3:
-      configCiclesUI();
+      configCyclesUI();
       while(!confirm()){
         selection(3);
         interact();
@@ -450,13 +507,72 @@ void UIControl(int id){
       }
       break;
     case 4:
-      pomodoroUI();
-      Pomodoro pomodoro(study_time, breack_time, cicles, 9);
+      transitionUI();
+      Pomodoro pomodoro(study_time, break_time, cycles, 9);
       currentMillis = millis();
       myTime = ((millis() - currentMillis) / 1000.0) / 60.0;
+      int state = 0;
+      int lastState = state;
       while(myTime < pomodoro.getTotalTime()){
-        myTime = ((millis() - currentMillis) / 1000.0) / 60.0;
+        
         Serial.println(pomodoro.getTimer(myTime));
+
+        if(pomodoro.getState() == "Trasition"){
+          state = 0;
+        } else if(pomodoro.getState() == "Study Time"){ 
+          state = 1;
+        } else {
+          state = 2;
+        }
+
+   
+
+        myTime = ((millis() - currentMillis) / 1000.0) / 60.0;
+        
+        if(state == 0){
+          tft.setTextColor(TFT_WHITE, TFT_ORANGE);
+        } else if(state == 1){
+          tft.setTextColor(TFT_WHITE, TFT_RED);
+          
+        } else{
+          tft.setTextColor(TFT_WHITE, TFT_DARKCYAN);
+        }
+        
+        if( state == 0){
+          tft.setCursor(55, 100);
+        } else{
+          tft.setCursor(55, 90);
+        }
+        
+        tft.setTextSize(8);
+        tft.print(pomodoro.getTimer(myTime));
+
+       if(state == 0){
+          tft.setTextColor(TFT_WHITE, TFT_ORANGE);
+        } else if (state == 1){
+          tft.setTextColor(TFT_ORANGE, TFT_RED);
+        } else{
+          tft.setTextColor(TFT_ORANGE, TFT_DARKCYAN);
+        }
+        tft.setTextSize(3);
+        tft.setCursor(72.3, 45);
+        tft.print(pomodoro.getState());
+
+
+        
+        
+
+        if(state != lastState){
+          if(state == 0){
+            transitionUI();
+          } else if (state == 1){
+            pomodoroUI();
+          } else{
+            breakUI();
+          }
+        }
+
+        lastState = state;
         delay(1000);
       }
       // while(myTime < totalTime){
@@ -464,7 +580,6 @@ void UIControl(int id){
       //   Serial.println("Timer: "+  pomodoro.getTimer(myTime)+ ", Tempo decorrido: " + String(myTime) + "min");
       // }
       //pomodoro.timer();
-      Serial.print("Chegou");
       break;
         
   }
@@ -508,7 +623,7 @@ void confirmUI(int item, int ui){
   if(ui<=2){
     tft.println("session duration to " + String(timer) + " minutes?");
   } else{
-    tft.println("the number of cicles to"+ String(cicles_choose) + "?");
+    tft.println("the number of cycles to"+ String(cycles_choose) + "?");
   }
   
 
@@ -569,18 +684,18 @@ void confirmUI(int item, int ui){
         interface = 2;
         study_time = timer;
         timer = 0;
-        UIControl(configBreack());
+        UIControl(configBreak());
         break;
       case 2:
         interface = 3;
-        breack_time = timer;
+        break_time = timer;
         timer = 0;
-        UIControl(configCicles());
+        UIControl(configCycles());
         break;
       case 3: 
         interface = 4;
-        cicles = cicles_choose;
-        cicles_choose = 0;
+        cycles = cycles_choose;
+        cycles_choose = 0;
         UIControl(configPomodoro());
         break;
     }
