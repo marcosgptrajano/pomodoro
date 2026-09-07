@@ -1,5 +1,5 @@
 #include <TFT_eSPI.h> // Biblioteca do display+// Arquivo com a sua array de pixels
-#include <Pomodoro.h>
+#include "Pomodoro.h"
 
 TFT_eSPI tft = TFT_eSPI();
 
@@ -21,6 +21,9 @@ int study_time = 0;
 int breack_time = 0;
 int cicles = 0;
 
+double myTime;
+double currentMillis;
+
 void setup() {
   pinMode(20, INPUT_PULLUP);
   Serial.begin(9600);
@@ -34,10 +37,11 @@ void setup() {
   tft.setCursor(40, 100);
   tft.print("Pomodoro");
   delay(1000);
+  UIControl(configStudy());
 }
 
 void loop() {
-  UIControl(configStudy());
+  
 
 }
 
@@ -365,7 +369,7 @@ void selectAnimation(int i){
           tft.print( cicles_choose<10? "0" + String(cicles_choose): ""+ String(cicles_choose));
         } else{
           tft.setCursor(55, 98);
-          tft.print( timer<10?"0" + String(timer)+ ":00":String(timer)  + ":00");
+          tft.print(timer<10?"0" + String(timer)+ ":00":String(timer)  + ":00");
         }
 
         tft.setTextSize(1.9);
@@ -448,10 +452,20 @@ void UIControl(int id){
     case 4:
       pomodoroUI();
       Pomodoro pomodoro(study_time, breack_time, cicles, 9);
-      pomodoro.timer();
-      tft.setTextSize(5);
-      tft.setCursor(40, 100);
-      tft.print("FINISH");
+      currentMillis = millis();
+      myTime = ((millis() - currentMillis) / 1000.0) / 60.0;
+      while(myTime < pomodoro.getTotalTime()){
+        myTime = ((millis() - currentMillis) / 1000.0) / 60.0;
+        Serial.println(pomodoro.getTimer(myTime));
+        delay(1000);
+      }
+      // while(myTime < totalTime){
+      //   myTime = ((millis() - currentMillis) / 1000) /60;
+      //   Serial.println("Timer: "+  pomodoro.getTimer(myTime)+ ", Tempo decorrido: " + String(myTime) + "min");
+      // }
+      //pomodoro.timer();
+      Serial.print("Chegou");
+      break;
         
   }
 
