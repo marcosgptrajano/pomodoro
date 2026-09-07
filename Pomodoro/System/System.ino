@@ -10,22 +10,39 @@ int j_x = 0;
 int j_y = 0;
 bool j_bt = false;
 
-int timer = 0;
+int timer = 1;
 int last_timer = 0;
 int cycles_choose = 0;
 int last_cycles = 0;
 
 int interface = 1;
 
-int study_time = 0;
-int break_time = 0;
-int cycles = 0;
+int study_time = 1;
+int break_time = 1;
+int cycles = 1;
 
 double myTime;
 double currentMillis;
 
+bool skip = false;
+bool stop = false;
+int state = 0;
+
+float timeStopped = 0;
+bool isStopped = false;
+
+#define BUZZER 2
+
+void confirmUI(int item, int ui);
+bool confirm();
+void UIControl(int id);
+void displayConfigTime(int t);
+void displayConfigCicle(int t);
+
+
 void setup() {
   pinMode(20, INPUT_PULLUP);
+  pinMode(BUZZER, OUTPUT);
   Serial.begin(9600);
   tft.init();
   tft.setRotation(1);
@@ -173,7 +190,7 @@ void interact(){
         j_y = analogRead(26);
         Serial.println("y: " + String(j_y) + " timer: " + String(timer));
         if(j_y >600){
-        if(timer < 60){
+        if(timer < 90){
           timer++;
           delay(100);
         }
@@ -187,7 +204,7 @@ void interact(){
         displayConfigTime(timer);
         }
     
-    } else{
+    } else if(interface == 3){
         while(j_bt){j_bt = digitalRead(20)==0?true:false;}
         tft.fillRect(47.6, 64.5, 225, 105, TFT_RED);
         tft.setTextSize(15);
@@ -213,6 +230,9 @@ void interact(){
         }
         displayConfigCicle(cycles_choose);
         }
+    } else{ 
+      while(j_bt){ j_bt = digitalRead(20)==0?true:false; }
+      skip = true;
     }
 }
 
@@ -222,7 +242,7 @@ void interact(){
     confirmUI(selection(2), interface);
   }
 
-  if(interface > 1){
+  if(interface > 1 && interface < 4){
     if(interface > 2){
       if(item_selected == 1 && j_bt){
       item_selected = 2;
@@ -239,7 +259,14 @@ void interact(){
       }
     }
   
+  }  else if (interface == 4){
+     if(item_selected == 1 && j_bt){
+      while(j_bt){ j_bt = digitalRead(20)==0?true:false; }
+      isStopped = true;
+     }
   }
+
+  
 }
 
 
@@ -273,6 +300,7 @@ void displayConfigCicle(int t){
 }
 
 void selectAnimation(int i){
+  if (interface < 4){
   if(i == 2){
     if(item_selected != last_item_selected){
       tft.setTextSize(1.9);
@@ -398,7 +426,39 @@ void selectAnimation(int i){
 
 
   }
+  } else{
+    if(i == 2){
+      if(item_selected != last_item_selected){
+        tft.setTextSize(2);
+        tft.fillRoundRect(24, 172.2, 99.4, 28.9, 5.5, TFT_WHITE);
+        tft.setCursor(43, 180.6);
+        tft.setTextColor(TFT_BLACK, TFT_WHITE);
+        tft.print("Pause");
+      }
+      tft.setTextSize(2);
+      tft.setTextColor(TFT_BLACK, TFT_ORANGE);
+      tft.fillRoundRect(191.8, 172.2, 99.4, 28.9, 5.5, TFT_ORANGE);
+      tft.setCursor(218, 180.6);
+      tft.print("Skip");
 
+      
+    } else if( i == 1){
+      if(item_selected != last_item_selected){
+      tft.setTextSize(2);
+      tft.setTextColor(TFT_BLACK, TFT_WHITE);
+      tft.fillRoundRect(191.8, 172.2, 99.4, 28.9, 5.5, TFT_WHITE);
+      tft.setCursor(218, 180.6);
+      tft.print("Skip");
+      }
+
+      tft.setTextSize(2);
+      tft.fillRoundRect(24, 172.2, 99.4, 28.9, 5.5, TFT_ORANGE);
+      tft.setCursor(43, 180.6);
+      tft.setTextColor(TFT_BLACK, TFT_ORANGE);
+      tft.print("Pause");
+
+    }
+  }
 }
 
 void pomodoroUI(){
@@ -463,6 +523,36 @@ void transitionUI(){
   tft.setCursor(55, 100);
   tft.setTextSize(8);
   tft.print("00:05");
+  playAlarm();
+
+}
+
+void finishUI(){
+
+  tft.fillScreen(TFT_RED);
+  tft.drawRect(5, 12, 310, 216, TFT_BLACK);
+  tft.setTextSize(3);
+  tft.setTextColor(TFT_WHITE, TFT_RED);
+  tft.setCursor(29.6, 67.6);
+  tft.print("Congrulations");
+  tft.setCursor(29.6, 104.5);
+  
+  tft.print("do you finish!");
+
+  tft.setTextSize(2);
+  tft.setCursor(98.8, 150.6);
+  tft.setTextColor(TFT_ORANGE, TFT_RED);
+  tft.print("Click to reset");
+
+  playAlarm();
+
+  while(!j_bt){
+  j_bt = digitalRead(20) == 0 ? true : false; 
+  }
+
+  UIControl(configStudy());
+
+
 
 }
 
@@ -483,6 +573,12 @@ int configPomodoro(){
 void UIControl(int id){
   switch(id){
     case 1:
+      interface = 1;
+      study_time = 1;
+      break_time = 1;
+      cycles = 1;
+      timer = 1;
+      cycles_choose = 1;
       configStudyUI();
       while(!confirm()){
         selection(3);
@@ -508,14 +604,19 @@ void UIControl(int id){
       break;
     case 4:
       transitionUI();
-      Pomodoro pomodoro(study_time, break_time, cycles, 9);
+      Pomodoro pomodoro(study_time, break_time, cycles);
+      timeStopped = 0;
       currentMillis = millis();
-      myTime = ((millis() - currentMillis) / 1000.0) / 60.0;
-      int state = 0;
+      
+      myTime = (((millis() - currentMillis) / 1000.0 / 60.0) - timeStopped) ; 
+      state = 0;
       int lastState = state;
-      while(myTime < pomodoro.getTotalTime()){
-        
-        Serial.println(pomodoro.getTimer(myTime));
+      
+      
+      while(myTime + pomodoro.getSkip() < pomodoro.getTotalTime()){
+
+        String currentTimerStr = pomodoro.getTimer(myTime);
+        Serial.println(currentTimerStr);
 
         if(pomodoro.getState() == "Trasition"){
           state = 0;
@@ -525,29 +626,61 @@ void UIControl(int id){
           state = 2;
         }
 
-   
+        if(state == 1 || state == 2){
+          selection(2);
+          interact();
+          if(skip == true){
+            pomodoro.Skip();
+            skip = false;
+          }
+          if(isStopped == true){
+            tft.setTextSize(2);
+            tft.fillRoundRect(24, 172.2, 99.4, 28.9, 5.5, TFT_ORANGE);
+            tft.setCursor(43, 180.6);
+            tft.setTextColor(TFT_BLACK, TFT_ORANGE);
+            tft.print("Resume");
+            
+            float start = myTime;
+            float end;
+            while(!j_bt){
+              j_bt = digitalRead(20) == 0 ? true : false;
+              end = (((millis() - currentMillis) / 1000.0) / 60.0); 
+            }
 
-        myTime = ((millis() - currentMillis) / 1000.0) / 60.0;
+            timeStopped += (end - start);
+            isStopped = false; 
+            
+            tft.setTextSize(2);
+            tft.fillRoundRect(24, 172.2, 99.4, 28.9, 5.5, TFT_WHITE);
+            tft.setCursor(43, 180.6);
+            tft.setTextColor(TFT_BLACK, TFT_WHITE); 
+            tft.print("Pause");
+          }
+            
+          selectAnimation(item_selected);
+        }
+
+        // 3. Atualiza o tempo decorrido para a próxima iteração
+        myTime = (((millis() - currentMillis) / 1000.0) / 60.0) - timeStopped;
         
         if(state == 0){
           tft.setTextColor(TFT_WHITE, TFT_ORANGE);
         } else if(state == 1){
           tft.setTextColor(TFT_WHITE, TFT_RED);
-          
         } else{
           tft.setTextColor(TFT_WHITE, TFT_DARKCYAN);
         }
         
-        if( state == 0){
+        if(state == 0){
           tft.setCursor(55, 100);
         } else{
           tft.setCursor(55, 90);
         }
         
         tft.setTextSize(8);
-        tft.print(pomodoro.getTimer(myTime));
+        tft.print(currentTimerStr);
 
-       if(state == 0){
+        if(state == 0){
           tft.setTextColor(TFT_WHITE, TFT_ORANGE);
         } else if (state == 1){
           tft.setTextColor(TFT_ORANGE, TFT_RED);
@@ -557,10 +690,6 @@ void UIControl(int id){
         tft.setTextSize(3);
         tft.setCursor(72.3, 45);
         tft.print(pomodoro.getState());
-
-
-        
-        
 
         if(state != lastState){
           if(state == 0){
@@ -575,11 +704,8 @@ void UIControl(int id){
         lastState = state;
         delay(1000);
       }
-      // while(myTime < totalTime){
-      //   myTime = ((millis() - currentMillis) / 1000) /60;
-      //   Serial.println("Timer: "+  pomodoro.getTimer(myTime)+ ", Tempo decorrido: " + String(myTime) + "min");
-      // }
-      //pomodoro.timer();
+
+      finishUI();
       break;
         
   }
@@ -683,19 +809,19 @@ void confirmUI(int item, int ui){
       case 1: 
         interface = 2;
         study_time = timer;
-        timer = 0;
+        timer = 1;
         UIControl(configBreak());
         break;
       case 2:
         interface = 3;
         break_time = timer;
-        timer = 0;
+        timer = 1;
         UIControl(configCycles());
         break;
       case 3: 
         interface = 4;
         cycles = cycles_choose;
-        cycles_choose = 0;
+        cycles_choose = 1;
         UIControl(configPomodoro());
         break;
     }
@@ -706,4 +832,26 @@ void confirmUI(int item, int ui){
 } 
 
 
+void playAlarm(){
+
+  for(int c = 0; c <= 3; c++){
+    tone(BUZZER, 200);
+    delay(100); // Wait for 1000 millisecond(s)
+    
+    tone(BUZZER, 400);
+    delay(100); // Wait for 1000 millisecond(s)
+    
+    tone(BUZZER, 600);
+    delay(100); // Wait for 1000 millisecond(s)
+    
+    tone(BUZZER, 800);
+    delay(100); // Wait for 1000 millisecond(s)
+    
+    tone(BUZZER, 1000);
+    delay(100); // Wait for 1000 millisecond(s)
+    
+    noTone(BUZZER);
+    delay(1000);
+  }
+}
 

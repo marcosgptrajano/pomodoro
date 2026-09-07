@@ -6,11 +6,14 @@
 
 class Pomodoro{
   public:
-    Pomodoro(int study, int breack, int cicles, const int BUZZER_PIN);
+    Pomodoro(int study, int breack, int cicles);
     void timer();
     String getTimer(float tt);
-    int getTotalTime();
+    float getTotalTime();
     String getState();
+    void Skip();
+    void Stop();
+    float getSkip();
   private:
     int studyTime;
     int breackTime;
@@ -19,7 +22,6 @@ class Pomodoro{
     unsigned long currentMillis;
     int currentRep;
     unsigned long myTime;
-    int buzzer;
 
     String studyTimeS;
     String breackTimeS;
@@ -37,6 +39,9 @@ class Pomodoro{
     String state;
 
     void setState(int b);
+
+    float skip;
+    float tempoRestanteBloco;
 
 };
 

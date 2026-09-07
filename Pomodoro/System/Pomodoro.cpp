@@ -2,10 +2,7 @@
 #include "Pomodoro.h"
 #include <vector> 
 
-Pomodoro::Pomodoro(int study, int breack, int cicles, int BUZZER_PIN){
-
-  pinMode(BUZZER_PIN, OUTPUT);
-  buzzer = BUZZER_PIN;
+Pomodoro::Pomodoro(int study, int breack, int cicles){
   studyTime = study;
   breackTime = breack;
   cycles = cicles;
@@ -17,20 +14,29 @@ Pomodoro::Pomodoro(int study, int breack, int cicles, int BUZZER_PIN){
   cc = 0;
   state = "Trasition";
 
+  skip = 0;
+  tempoRestanteBloco = 0;
+
+
   if(cicles > 1 ){
-    timeConfig.resize(cicles + (cicles -1) + (cicles+1));
-    timeConfig[0] = 0.11;
-    for( int cc = 2; cc<=(cicles*2)+1; cc+=2){
-    timeConfig[cc] = 0.11;
-    }
-    for(int cc = 1; cc <= (cicles*2)+1 ; cc+=4){
-    timeConfig[cc] = studyTime;
-    }
-    for(int cc = 3; cc <= (cicles*2)+1  ; cc+=4){
-    timeConfig[cc] = breackTime;
+    // 2 blocos para o 1º ciclo (T, S) + 4 blocos para cada ciclo adicional (T, B, T, S)
+    int totalBlocks = 2 + (cicles - 1) * 4;
+    timeConfig.resize(totalBlocks);
+    
+    int index = 0;
+    // 1º Ciclo: Transição e Estudo inicial
+    timeConfig[index++] = 0.11; 
+    timeConfig[index++] = studyTime; 
+    
+    // Demais ciclos: Transição -> Pausa -> Transição -> Estudo
+    for(int i = 1; i < cicles; i++){
+      timeConfig[index++] = 0.11;       // Transição para a pausa
+      timeConfig[index++] = breackTime; // Pausa
+      timeConfig[index++] = 0.11;       // Transição para o próximo estudo
+      timeConfig[index++] = studyTime;  // Estudo
     }
   }else{
-    timeConfig.resize(cicles + 1);
+    timeConfig.resize(2);
     timeConfig[0] = 0.11;
     timeConfig[1] = studyTime;
   }
@@ -38,27 +44,6 @@ Pomodoro::Pomodoro(int study, int breack, int cicles, int BUZZER_PIN){
 
 }
 
-void Pomodoro::playAlarm(){
-  for(int c = 0; c <= 3; c++){
-    tone(buzzer, 200);
-    delay(100); // Wait for 1000 millisecond(s)
-    
-    tone(buzzer, 400);
-    delay(100); // Wait for 1000 millisecond(s)
-    
-    tone(buzzer, 600);
-    delay(100); // Wait for 1000 millisecond(s)
-    
-    tone(buzzer, 800);
-    delay(100); // Wait for 1000 millisecond(s)
-    
-    tone(buzzer, 1000);
-    delay(100); // Wait for 1000 millisecond(s)
-    
-    noTone(buzzer);
-    delay(1000);
-  }
-}
 
 void Pomodoro::timer(){
   Serial.println("-------------------------------");
@@ -124,52 +109,37 @@ void Pomodoro::breackTimer(){
 
 
 String Pomodoro::getTimer(float tt){
-  float tempoRestanteBloco = 0;
+    tempoRestanteBloco = 0;
     int blocoAtual = 0;
+    float timeWithSkip = tt + skip;
 
-    while (blocoAtual < timeConfig.size() && tt >= timeConfig[blocoAtual]) {
-        tt -= timeConfig[blocoAtual]; 
+    while (blocoAtual < timeConfig.size() && timeWithSkip >= timeConfig[blocoAtual]) {
+        timeWithSkip -= timeConfig[blocoAtual]; 
         blocoAtual++;
     }
 
     if (blocoAtual >= timeConfig.size()) {
-        return "0:00";
+        return "00:00";
     }
 
-    tempoRestanteBloco = timeConfig[blocoAtual] - tt;
+    tempoRestanteBloco = timeConfig[blocoAtual] - timeWithSkip;
 
     int minutos = int(tempoRestanteBloco);
     int segundos = int((tempoRestanteBloco - minutos) * 60);
 
+    // Cria a string dos segundos com zero à esquerda se for menor que 10
     String secStr = (segundos < 10) ? "0" + String(segundos) : String(segundos);
+    
+    // Cria a string dos minutos com zero à esquerda se for menor que 10
+    String minStr = (minutos < 10) ? "0" + String(minutos) : String(minutos);
 
     setState(blocoAtual);
     
-    return minutos>=10?String(minutos):"0"+String(minutos) + ":" + secStr; 
-  // cc = float(tt);
-  // totalTime = (studyTime * cycles) + (breackTime * (cycles - 1));
-  // int neededTime = totalTime - timePassed;
-
-  // cc = cc - studyTime;
-  // while(cc > 0){
-  //   cc = cc - studyTime;
-  //   if(cc > 0){
-  //     cc = cc- breackTime;
-  //     if( cc == 0){
-  //       cc = cc - studyTime;
-  //     }
-  //   } else if (cc == 0){
-  //      cc = cc - breackTime;
-  //   }
-  //}
-
-  // String minutes = String(int(-cc));
-  // String seconds = String (((-cc) - int(-cc)) * 60);
-  // return minutes + ":" + seconds;
-  
+    // Junta as duas partes perfeitamente: "45:59", "09:05", etc.
+    return minStr + ":" + secStr; 
 }
 
-int Pomodoro::getTotalTime(){
+float Pomodoro::getTotalTime(){
   float total = 0;
   for(float t : timeConfig){
     total += t;
@@ -191,4 +161,17 @@ void Pomodoro::setState(int b){
 String Pomodoro::getState(){
   return state;
 }
+
+void Pomodoro::Skip(){
+  if(state == "Study Time" || state == "Break Time"){
+    // Aplica o pulo do bloco atual e ajusta o relógio de atalho
+    skip += tempoRestanteBloco;
+  }
+}
+
+float Pomodoro::getSkip(){
+  return skip;
+}
+
+
 
