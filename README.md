@@ -37,6 +37,8 @@ Consulte o arquivo de imagem integrado **`Diagram.png`** para visualizar o circu
 * **Buzzer:** Conectado ao pino `GP2`.
 * **Display TFT:** Utiliza a interface SPI padrão configurada na biblioteca `TFT_eSPI`.
 
+![Diagrama](Circuits/Schem.png)
+
 ---
 
 ## 💻 Dependências e Software
