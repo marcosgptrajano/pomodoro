@@ -1,37 +1,3 @@
-
-Conversa com o Gemini
-Crie um Redme para esse projeto no github gere um arquivo md
-
-O seu arquivo README.md (Markdown) para o GitHub foi criado com sucesso.
-
-Ícone do app MD
-README
- MD 
-O README foi estruturado com base nos arquivos fornecidos e contém:
-
-Uma breve descrição sobre o funcionamento do seu projeto Pomodoro com as telas de pausa, estudo e transição.  
-Desconhecido
-+ 1
-
-Especificação dos pinos do Joystick (GP26, GP27 e GP20) e do Buzzer (GP2) identificados no seu código principal.  
-Desconhecido
-
-Menção ao uso da biblioteca TFT_eSPI e bibliotecas padrão <vector> e Arduino.h.  
-H
-+ 1
-
-Referência à imagem Diagram.png enviada por você para auxiliar os usuários na ligação do esquema elétrico no Raspberry Pi Pico.  
-Desconhecido
-
-Explicação da arquitetura dos módulos separados entre lógica (Pomodoro.h/Pomodoro.cpp) e UI.  
-H
-+ 2
-
-O Gemini é uma IA e pode cometer erros.
-
-
-
-
 # 🍅 Temporizador Pomodoro com Raspberry Pi Pico
 
 Um projeto de hardware interativo que implementa um **Temporizador Pomodoro** utilizando um **Raspberry Pi Pico**, um **Display TFT LCD (2.8" SPI)**, um **Joystick** para navegação e um **Buzzer** para alertas sonoros.
