@@ -69,5 +69,4 @@ O projeto foi desenvolvido em **C++** utilizando a infraestrutura do Arduino (co
 
 ---
 *Projeto criado para auxiliar no foco e produtividade utilizando técnicas de hardware embarcado e design de interface em C++.*
-README.md
-Exibindo README.md.
+
